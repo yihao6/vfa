@@ -1,0 +1,41 @@
+{
+    "fp16":1,
+    "num_epochs":1000,
+    "batch_size":1,
+    "LR":0.0001,
+    "LR_schedule":[
+        1000
+    ],
+    "model":{
+        "name":"VFA",
+        "skip":0,
+        "initialize":0.1,
+        "downsamples":4,
+        "start_channels":8,
+        "matching_channels":8,
+        "int_steps":0,
+        "affine":0
+    },
+    "loss":{
+	"train":{
+		"MI":{
+		    "weight":1.0
+		},
+		"Grad":{
+		    "weight":1.0
+		}
+	},
+	"eval":{
+		"MI":{
+		    "weight":1.0
+		},
+		"Grad":{
+		    "weight":1.0
+		},
+		"Beta":{
+		    "weight":1.0
+		}
+	}
+    }
+
+}

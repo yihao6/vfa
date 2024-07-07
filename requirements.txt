@@ -1,0 +1,11 @@
+torch
+torchvision
+tqdm
+numpy<2.0
+tensorboard
+nibabel
+opencv-python
+scipy
+pandas
+openpyxl
+thop

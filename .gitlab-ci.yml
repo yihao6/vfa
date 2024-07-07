@@ -1,0 +1,18 @@
+build:
+  image: docker:20.10.16
+  stage: build
+  services:
+    - docker:20.10.16-dind
+  variables:
+    TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build 
+      --label ci.image=$CI_REGISTRY_IMAGE
+      --label ci.tag=$CI_COMMIT_TAG
+      --label ci.commit=$CI_COMMIT_SHA 
+      -t $TAG .
+    - DIGEST=$(docker inspect --format='{{index .Id}}' $TAG)
+    - echo "FROM $TAG" | docker buildx build --label ci.digest=$DIGEST -t $TAG --push -
+  only:
+    - tags
