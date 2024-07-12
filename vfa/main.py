@@ -214,11 +214,18 @@ def main():
             json.dump(params, f, indent=4, separators=(',',':'))
         logger.info(f'Checkpoint directory: {checkpoint_folder}')
 
+        # main progress bar
+        main_pbar = tqdm(total=params['num_epochs'], position=0)
+        main_pbar.set_description(f"[{socket.gethostname().split('.')[0]}-{params['gpu']}][{checkpoint_folder}]")
+        eval_pbar = tqdm(total=len(evalDL), position=1)
+        train_pbar = tqdm(total=len(trainDS) // params['batch_size'], position=2)
+
         for epoch in range(start_epoch, params['num_epochs']):
             '''run validation'''
-            with tqdm(total=len(evalDL)) as pbar:
-                pbar.set_description(f"[evaluate][{checkpoint_folder}-{epoch}]")
-                epoch_loss = evaluate(net, evalDL, params, pbar, eval_data_configs)
+            eval_pbar.reset()
+            eval_pbar.set_description(f"[Evaluation][Epoch: {epoch}|{params['num_epochs']}]")
+            eval_pbar.refresh()
+            epoch_loss = evaluate(net, evalDL, params, eval_pbar, eval_data_configs)
 
             for key in epoch_loss:
                 average_loss = np.mean(np.array(epoch_loss[key]))
@@ -233,19 +240,16 @@ def main():
             }, os.path.join(checkpoint_folder, save_model_name))
 
             '''training'''
-            with tqdm(total=len(trainDS) // params['batch_size']) as pbar:
-                pbar.set_description('[{}-{}][{}][{}|{}]'.format(
-                    socket.gethostname().split('.')[0],
-                    params['gpu'],
-                    checkpoint_folder,
-                    epoch,
-                    params['num_epochs'])
-                )
-                epoch_loss = train(net, trainDL, params, optimizer, scheduler, scaler, pbar, train_data_configs)
+            train_pbar.reset()
+            train_pbar.set_description(f"[Training][Epoch: {epoch}|{params['num_epochs']}]")
+            train_pbar.refresh()
+            epoch_loss = train(net, trainDL, params, optimizer, scheduler, scaler, train_pbar, train_data_configs)
 
             for key in epoch_loss:
                 average_loss = np.mean(np.array(epoch_loss[key]))
                 writer.add_scalar(f"train/{key}-Loss", average_loss, epoch)
+
+            main_pbar.update(1)
 
     elif params['func'] == 'evaluate':
         logger.info('Analyze FLOPs and Number of Parameters')
@@ -253,9 +257,10 @@ def main():
         net.print_flops()
 
         logger.info('Evaluation started')
-        with tqdm(total=len(evalDS)) as pbar:
-            pbar.set_description(f"[{params['checkpoint']}")
-            epoch_loss = evaluate(net, evalDL, params, pbar, eval_data_configs)
+        pbar = tqdm(total=len(evalDS), position=0)
+        pbar.set_description(f"[Evaluation][{params['checkpoint']}]")
+        epoch_loss = evaluate(net, evalDL, params, pbar, eval_data_configs)
+        pbar.close()
 
         for key in epoch_loss:
             loss = np.mean(np.array(epoch_loss[key]))
