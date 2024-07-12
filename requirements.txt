@@ -4,7 +4,7 @@ tqdm
 numpy<2.0
 tensorboard
 nibabel
-opencv-python
+opencv-python-headless
 scipy
 pandas
 openpyxl
