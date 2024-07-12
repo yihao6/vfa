@@ -55,7 +55,6 @@ import numpy as np
 import torch
 from pathlib import Path
 import nibabel as nib
-import cv2
 
 class BaseDataset(Dataset, ABC):
     def __init__(self, configs, params):
@@ -111,6 +110,7 @@ class BaseDataset(Dataset, ABC):
 
     def save_img(self, img, affine, target_path, shape=None, reference_obj=None):
         if self.configs['dimension'] == 2:
+            raise NotImplementedError('2D data is not supported in the current version.')
             out = img.permute(0, 2, 3, 1).cpu().squeeze().numpy()
             cv2.imwrite(str(target_path), (255 * out).astype('uint8'))
         else:
@@ -133,6 +133,7 @@ class BaseDataset(Dataset, ABC):
             raise FileNotFoundError(f"Cannot find image {img_path}.")
 
         if self.configs['dimension'] == 2:
+            raise NotImplementedError('2D data is not supported in the current version.')
             img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
             affine = np.eye(4)
             affine[0, 0] = affine[1, 1] = -1
