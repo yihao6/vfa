@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY . /tmp/nsr
 
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y # install cv2 dependencies
+
 RUN pip install /tmp/nsr && rm -rf /tmp/nsr
 
 ENTRYPOINT ["sh", "-c"]
