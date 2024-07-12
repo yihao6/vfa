@@ -93,9 +93,9 @@ def evaluate(net, evalDL, params, pbar, data_configs):
 
 def add_arguments(subparser):
     subparser.add_argument("--gpu", help="GPU ID", default=0)
-    subparser.add_argument("--checkpoint", help="Path to a pretrained models")
-    subparser.add_argument("--params", help="Specify params.json to load. Default: params.json in the checkpoints folder")
-    subparser.add_argument("--eval_data_configs", help="Specify data_configs.json to load. Default: data_configs.json in the checkpoints folder")
+    subparser.add_argument("--checkpoint", type=os.path.abspath, help="Path to a pretrained models")
+    subparser.add_argument("--params", type=os.path.abspath, help="Specify params.json to load. Default: params.json in the checkpoints folder")
+    subparser.add_argument("--eval_data_configs", type=os.path.abspath, help="Specify data_configs.json to load. Default: data_configs.json in the checkpoints folder")
     subparser.add_argument("--cudnn", action='store_true', default=False, help="Enable CUDNN")
 
 def main():
@@ -106,24 +106,24 @@ def main():
 
     train_parser = subparsers.add_parser('train')
     train_parser.set_defaults(func='train')
-    train_parser.add_argument("--output_dir", help="Output directory.", default=None)
+    train_parser.add_argument("--output_dir", type=os.path.abspath, help="Output directory.", default='./vfa')
     train_parser.add_argument("--identifier", help="A string that identify the current run.", required=True)
-    train_parser.add_argument("--train_data_configs", help="Specify data_configs.json to load for training. Default: data_configs.json in the checkpoints folder")
+    train_parser.add_argument("--train_data_configs", type=os.path.abspath, help="Specify data_configs.json to load for training. Default: data_configs.json in the checkpoints folder")
     train_parser.add_argument("--save_results", type=int, default=0)
     add_arguments(train_parser)
 
     evaluate_parser = subparsers.add_parser('evaluate')
     evaluate_parser.set_defaults(func='evaluate')
     evaluate_parser.add_argument("--save_results", type=int, default=1)
-    evaluate_parser.add_argument("--f_img", help="Path to the fixed image.")
-    evaluate_parser.add_argument("--m_img", help="Path to the moving image.")
-    evaluate_parser.add_argument("--f_input", help="Path to the fixed input image.")
-    evaluate_parser.add_argument("--m_input", help="Path to the moving input image.")
-    evaluate_parser.add_argument("--f_mask", help="Path to the fixed mask.")
-    evaluate_parser.add_argument("--m_mask", help="Path to the moving mask.")
-    evaluate_parser.add_argument("--f_seg", help="Path to the fixed label map.")
-    evaluate_parser.add_argument("--m_seg", help="Path to the moving label map.")
-    evaluate_parser.add_argument("--prefix", help="Prefix of the saved results.")
+    evaluate_parser.add_argument("--f_img", type=os.path.abspath, help="Path to the fixed image.")
+    evaluate_parser.add_argument("--m_img", type=os.path.abspath, help="Path to the moving image.")
+    evaluate_parser.add_argument("--f_input", type=os.path.abspath, help="Path to the fixed input image.")
+    evaluate_parser.add_argument("--m_input", type=os.path.abspath, help="Path to the moving input image.")
+    evaluate_parser.add_argument("--f_mask", type=os.path.abspath, help="Path to the fixed mask.")
+    evaluate_parser.add_argument("--m_mask", type=os.path.abspath, help="Path to the moving mask.")
+    evaluate_parser.add_argument("--f_seg", type=os.path.abspath, help="Path to the fixed label map.")
+    evaluate_parser.add_argument("--m_seg", type=os.path.abspath, help="Path to the moving label map.")
+    evaluate_parser.add_argument("--prefix", type=os.path.abspath, help="Prefix of the saved results.")
     add_arguments(evaluate_parser)
 
     args = parser.parse_args()
@@ -140,8 +140,6 @@ def main():
     if args.params:
         # load the hyper parameters from json file
         params = update_params_json(args.params, params)
-    # update hyper parameters from command line args
-    params['cwd'] = os.path.dirname(os.path.abspath(__file__))
     params = update_params_args(args, params)
 
     eval_data_configs = load_data_configs(params['eval_data_configs'])
@@ -201,8 +199,6 @@ def main():
         start_epoch = 1
 
     if params['func'] == 'train':
-        if params['output_dir'] is None:
-            params['output_dir'] = params['cwd']
         logger.info('Training started')
         # setting up tensorboard
         from torch.utils.tensorboard import SummaryWriter

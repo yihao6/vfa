@@ -31,7 +31,7 @@ class L2R2022NLSTDataset(PairwiseDataset):
              sample['prefix'] = data_path['prefix']
          else:
              sample['prefix'] = os.path.abspath(os.path.join(
-                                    self.params['cwd'],
+                                    self.params['output_dir'],
                                     'experiments',
                                     'l2r2022nlst',
                                     data_path['prefix']
@@ -123,7 +123,7 @@ class L2R2022NLSTDataset(PairwiseDataset):
         disp = results['grid'] - identity_grid_like(results['grid'], normalize=False)
         disp = disp.detach().permute(0, 2, 3, 4, 1).cpu().squeeze().numpy()
 
-        submission_path = pathlib.Path(self.params['cwd']) / 'experiments' / 'l2r2022nlst' / 'nlst_zerofield' / 'nlst_zerofield' / 'test_zf'
+        submission_path = pathlib.Path(self.params['output_dir']) / 'experiments' / 'l2r2022nlst' / 'nlst_zerofield' / 'nlst_zerofield' / 'test_zf'
         submission_path.mkdir(exist_ok=True, parents=True)
         filename = f"disp_{sample['sid'][0]}_{sample['sid'][0]}.nii.gz"
         nib.save(nib.Nifti1Image(disp, np.eye(4)), str(submission_path / filename))

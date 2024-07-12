@@ -21,7 +21,7 @@ class L2R2022OASISDataset(PairwiseDataset):
             sample['prefix'] = data_path['prefix']
         else:
             sample['prefix'] = os.path.abspath(os.path.join(
-                                self.params['cwd'],
+                                self.params['output_dir'],
                                 'experiments',
                                 'l2r2022oasis',
                                 data_path['prefix']
@@ -40,7 +40,7 @@ class L2R2022OASISDataset(PairwiseDataset):
         disp = disp.detach().cpu().numpy()[0]
         disp_half = np.array([zoom(disp[x], 0.5, order=2) for x in range(3)])
         disp_half = disp_half.astype('float16')
-        submission_path = pathlib.Path(self.params['cwd']) / 'experiments' / 'l2r2022oasis'/ 'submission' / 'task_03'
+        submission_path = pathlib.Path(self.params['output_dir']) / 'experiments' / 'l2r2022oasis'/ 'submission' / 'task_03'
         submission_path.mkdir(exist_ok=True, parents=True)
         filename = f"disp_{sample['f_sid'][0]}_{sample['m_sid'][0]}.npz"
         np.savez(str(submission_path / filename), disp_half)

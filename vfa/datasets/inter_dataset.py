@@ -57,7 +57,7 @@ class InterDataset(BaseDataset):
                 sample['prefix'] = f_sample['prefix']
             else:
                 sample['prefix'] = os.path.abspath(os.path.join(
-                                        self.params['cwd'],
+                                        self.params['output_dir'],
                                         'experiments',
                                         f_sample['prefix']
                 ))
@@ -67,7 +67,7 @@ class InterDataset(BaseDataset):
                 sample['prefix'] = m_sample['prefix']
             else:
                 sample['prefix'] = os.path.abspath(os.path.join(
-                                        self.params['cwd'],
+                                        self.params['output_dir'],
                                         'experiments',
                                         m_sample['prefix']
                 ))

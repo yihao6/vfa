@@ -27,7 +27,7 @@ class PairwiseDataset(BaseDataset):
                 sample['prefix'] = data_path['prefix']
             else:
                 sample['prefix'] = os.path.abspath(os.path.join(
-                                        self.params['cwd'],
+                                        self.params['output_dir'],
                                         'experiments',
                                         self.params['identifier'],
                                         data_path['prefix']

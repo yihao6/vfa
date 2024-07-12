@@ -22,7 +22,7 @@ class L2R2024LUMIRDataset(PairwiseDataset):
 
         sample['filename'] = f'disp_{f_sid}_{m_sid}.nii.gz'
         sample['prefix'] = os.path.abspath(os.path.join(
-                                self.params['cwd'],
+                                self.params['output_dir'],
                                 'experiments',
                                 'l2r2024lumir',
                                 sample['filename']
@@ -40,7 +40,7 @@ class L2R2024LUMIRDataset(PairwiseDataset):
         disp = results['grid'] - identity_grid_like(results['grid'], normalize=False)
         disp = disp.detach().cpu().numpy()[0].transpose(1, 2, 3, 0)
 
-        submission_path = pathlib.Path(self.params['cwd']) / 'experiments' / 'l2r2024lumir' / 'submission'
+        submission_path = pathlib.Path(self.params['output_dir']) / 'experiments' / 'l2r2024lumir' / 'submission'
         submission_path.mkdir(exist_ok=True, parents=True)
 
         ref_obj = nib.load(sample['f_img_path'][0])
