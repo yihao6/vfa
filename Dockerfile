@@ -4,9 +4,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /tmp/nsr
+COPY . /tmp/vfa
 
-RUN pip install /tmp/nsr && rm -rf /tmp/nsr
+RUN pip install /tmp/vfa && rm -rf /tmp/vfa
 
 ENTRYPOINT ["sh", "-c"]
-CMD ["nsr-run"]
+CMD ["vfa-run"]

@@ -7,7 +7,7 @@
         {"class_name":"RandomFlip3d"},
         {"class_name":"ToTensor"}
     ],
-    "f_samples":[
+    "f_subjects":[
         {
             "id":1,
             "img":"vfa/data/lumir/imagesTr/LUMIRMRI_0000_0000.nii.gz"

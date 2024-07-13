@@ -284,7 +284,7 @@ class BaseModel(nn.Module):
         from thop import profile
         # create dummy input
         if len(self.params['model']['in_shape']) == 3:
-            logger.info("Input image shape: [1, 192, 224, 192].")
+            logger.info("---- Input image shape: [1, 192, 224, 192].")
             shape = [1, 192, 224, 192]
         elif len(self.params['model']['in_shape']) == 2:
             shape = [1, 512, 512]

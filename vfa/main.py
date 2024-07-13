@@ -232,7 +232,7 @@ def main():
                 writer.add_scalar(f"validate/{key}-Loss", average_loss, epoch)
 
             '''save model'''
-            save_model_name = str(epoch) + '-net.pth' if epoch % 50 == 0 else 'net.pth'
+            save_model_name = str(epoch) + '-net.pth' if epoch % 50 == 0 else 'most_recent.pth'
             torch.save({'epoch': epoch,
                         'model_state_dict': net.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
