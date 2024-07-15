@@ -23,7 +23,7 @@ def setup_logging():
 
 def load_data_configs(json_path):
     '''Load data configuration from json file'''
-    if os.path.exists(json_path):
+    if os.path.isfile(json_path) and os.path.exists(json_path):
         with open(json_path, 'r') as f:
             data = json.load(f)
     else:

@@ -61,10 +61,10 @@ class BaseDataset(Dataset, ABC):
         super().__init__()
         if 'transform' not in configs:
             configs['transform'] = [
-                {"class_name":"Reorient"},
-                {"class_name":"Resample"},
+                {"class_name":"Reorient", "orientation":'RAS'},
+                {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},
                 {"class_name":"Nifti2Array"},
-                {"class_name":"AdjustShape"},
+                {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},
                 {"class_name":"DatatypeConversion"},
                 {"class_name":"ToTensor"},
             ]

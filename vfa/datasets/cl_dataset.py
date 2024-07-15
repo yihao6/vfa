@@ -5,7 +5,7 @@ from vfa.datasets.pairwise_dataset import PairwiseDataset
 
 class CLDataset(PairwiseDataset):
     def __init__(self, configs, params):
-        super().__init__()
+        super().__init__(configs, params)
 
         self.configs['pairs'] = [{'id': 1}]
         for key in ['prefix', 'f_img', 'm_img', 'f_input', 'm_input',

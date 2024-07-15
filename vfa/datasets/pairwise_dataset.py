@@ -34,31 +34,31 @@ class PairwiseDataset(BaseDataset):
                 ))
 
         # 
-        if 'f_inputs' in data_path:
+        if 'f_inputs' in data_path and data_path['f_input'] is not None:
             sample['f_input_path'] = os.path.abspath(random.choice(data_path['f_inputs']))
             sample['f_input'] = self.load_img_obj(sample['f_input_path'])
 
-        if 'm_inputs' in data_path:
+        if 'm_inputs' in data_path and data_path['m_inputs'] is not None:
             sample['m_input_path'] = os.path.abspath(random.choice(data_path['m_inputs']))
             sample['m_input'] = self.load_img_obj(sample['m_input_path'])
 
-        if 'f_mask' in data_path:
+        if 'f_mask' in data_path and data_path['f_mask'] is not None:
             sample['f_mask_path'] = os.path.abspath(data_path['f_mask'])
             sample['f_mask'] = self.load_img_obj(sample['f_mask_path'])
 
-        if 'm_mask' in data_path:
+        if 'm_mask' in data_path and data_path['m_mask'] is not None:
             sample['m_mask_path'] = os.path.abspath(data_path['m_mask'])
             sample['m_mask'] = self.load_img_obj(sample['m_mask_path'])
 
-        if 'f_seg' in data_path:
+        if 'f_seg' in data_path and data_path['f_seg'] is not None:
             sample['f_seg_path'] = os.path.abspath(data_path['f_seg'])
             sample['f_seg'] = self.load_img_obj(sample['f_seg_path'])
 
-        if 'm_seg' in data_path:
+        if 'm_seg' in data_path and data_path['m_seg'] is not None:
             sample['m_seg_path'] = os.path.abspath(data_path['m_seg'])
             sample['m_seg'] = self.load_img_obj(sample['m_seg_path'])
 
-        if 'ext_affine_matrix' in data_path:
+        if 'ext_affine_matrix' in data_path and data_path['ext_affine_matrix'] is not None:
             ants_affine_matrix = get_ants_affine_matrix(data_path['ext_affine_matrix'])
             sample['ext_affine_grid'] = calc_affine_grid(
                     ants_affine_matrix,
