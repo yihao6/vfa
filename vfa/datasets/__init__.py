@@ -400,20 +400,20 @@ class BaseDataset(Dataset, ABC):
             return sample
 
     class RangeNormalize(object):
-        def __init__(self, f_max, f_min, m_max, m_min):
-            self.f_max = f_max
-            self.f_min = f_min
-            self.m_max = m_max
-            self.m_min = m_min
+        ''' Normalize the intensity values to [0, 1].
+            Only applied to the images but not the inputs because inputs will be normalized by
+            InstanceNorm within the network
+        '''
+        def __init__(self, min_percentile=0.01, max_percentile=0.99):
+            self.max_percentile = max_percentile
+            self.min_percentile = min_percentile
 
         def __call__(self, sample):
             for key in sample:
-                if key in ['f_img', 'f_input']:
-                    sample[key] = np.clip(sample[key], self.f_min, self.f_max)
-                    sample[key] = sample[key] - sample[key].min()
-                    sample[key] = sample[key] / sample[key].max()
-                elif key in ['m_img', 'm_input']:
-                    sample[key] = np.clip(sample[key], self.m_min, self.m_max)
+                if key in ['f_img', 'm_img']:
+                    min_intensity = np.percentile(sample[key], self.min_percentile)
+                    max_intensity = np.percentile(sample[key], self.max_percentile)
+                    sample[key] = np.clip(sample[key], min_intensity, max_intensity)
                     sample[key] = sample[key] - sample[key].min()
                     sample[key] = sample[key] / sample[key].max()
             return sample
