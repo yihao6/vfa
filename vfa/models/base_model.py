@@ -171,16 +171,6 @@ class BaseModel(nn.Module):
             loss = self.loss_instances[phase]['MI'](pred, target)
         return loss
 
-    def calc_msmi_loss(self, results, sample, phase, **args):
-        pred = results['w_img'] * results['mask']
-        target = sample['f_img'].to(self.device) * results['mask']
-
-        with autocast(enabled=False):
-            pred = pred.type(torch.float32)
-            target = target.type(torch.float32)
-            loss = self.loss_instances[phase]['MSMI'](pred, target)
-        return loss
-
     def calc_affine_mi_loss(self, results, sample, phase, **args):
         pred = results['affine_w_img'] * results['affine_mask']
         target = sample['f_img'].to(self.device) * results['affine_mask']
@@ -189,16 +179,6 @@ class BaseModel(nn.Module):
             pred = pred.type(torch.float32)
             target = target.type(torch.float32)
             loss = self.loss_instances[phase]['Affine_MI'](pred, target)
-        return loss
-
-    def calc_affine_msmi_loss(self, results, sample, phase, **args):
-        pred = results['affine_w_img'] * results['affine_mask']
-        target = sample['f_img'].to(self.device) * results['affine_mask']
-
-        with autocast(enabled=False):
-            pred = pred.type(torch.float32)
-            target = target.type(torch.float32)
-            loss = self.loss_instances[phase]['Affine_MSMI'](pred, target)
         return loss
 
     def calc_ncc_loss(self, results, sample, phase, **args):
