@@ -60,14 +60,25 @@ class BaseDataset(Dataset, ABC):
     def __init__(self, configs, params):
         super().__init__()
         if 'transform' not in configs:
-            configs['transform'] = [
-                {"class_name":"Reorient", "orientation":'RAS'},
-                {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},
-                {"class_name":"Nifti2Array"},
-                {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},
-                {"class_name":"DatatypeConversion"},
-                {"class_name":"ToTensor"},
-            ]
+            if params['func'] == 'evaluate':
+                configs['transform'] = [
+                    {"class_name":"Reorient", "orientation":'RAS'},
+                    {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},
+                    {"class_name":"Nifti2Array"},
+                    {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},
+                    {"class_name":"DatatypeConversion"},
+                    {"class_name":"ToTensor"},
+                ]
+            else: # params['func'] == 'train'
+                configs['transform'] = [
+                    {"class_name":"Reorient", "orientation":'RAS'},
+                    {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},
+                    {"class_name":"Nifti2Array"},
+                    {"class_name":"RangeNormalize"}, # normalize the intensity values to avoid nan
+                    {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},
+                    {"class_name":"DatatypeConversion"},
+                    {"class_name":"ToTensor"},
+                ]
             logger.info('No transform specified in data_config file. Use default.')
 
         self.configs = configs
