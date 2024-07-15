@@ -92,11 +92,11 @@ def evaluate(net, evalDL, params, pbar, data_configs):
     return epoch_loss
 
 def add_arguments(subparser):
-    subparser.add_argument("--gpu", help="GPU ID", default=0)
-    subparser.add_argument("--checkpoint", type=os.path.abspath, help="Path to a pretrained models")
-    subparser.add_argument("--params", type=os.path.abspath, help="Specify params.json to load. Default: params.json in the checkpoints folder")
-    subparser.add_argument("--eval_data_configs", type=os.path.abspath, help="Specify data_configs.json to load. Default: data_configs.json in the checkpoints folder")
-    subparser.add_argument("--cudnn", action='store_true', default=False, help="Enable CUDNN")
+    subparser.add_argument("--gpu", help="GPU ID. Default: 0", default=0)
+    subparser.add_argument("--checkpoint", type=os.path.abspath, help="Path to pretrained models. During training, continue from this checkpoint. During evaluation, evaluate this checkpoint.")
+    subparser.add_argument("--params", type=os.path.abspath, help="Path to params.json for hyper-parameters. If a checkpoint is provided, defaults to params.json in the checkpoint folder.")
+    subparser.add_argument("--eval_data_configs", type=os.path.abspath, help="Path to data_configs.json for evaluation data information", default='')
+    subparser.add_argument("--cudnn", action='store_true', default=False, help="Enable CUDNN for potential speedup")
 
 def main():
     logger.info('Program started')
@@ -106,24 +106,28 @@ def main():
 
     train_parser = subparsers.add_parser('train')
     train_parser.set_defaults(func='train')
-    train_parser.add_argument("--output_dir", type=os.path.abspath, help="Output directory.", default='./vfa')
-    train_parser.add_argument("--identifier", help="A string that identify the current run.", required=True)
-    train_parser.add_argument("--train_data_configs", type=os.path.abspath, help="Specify data_configs.json to load for training. Default: data_configs.json in the checkpoints folder")
-    train_parser.add_argument("--save_results", type=int, default=0)
+    train_parser.add_argument("--output_dir", type=os.path.abspath, help="Output directory (default: ./vfa)", default='./vfa')
+    train_parser.add_argument("--identifier", help="A string that identify the current run (required)", required=True)
+    train_parser.add_argument("--train_data_configs", type=os.path.abspath, help="Path to data_configs.json for training data information (required)", required=True)
+    train_parser.set_defaults(save_results=0)
     add_arguments(train_parser)
 
     evaluate_parser = subparsers.add_parser('evaluate')
     evaluate_parser.set_defaults(func='evaluate')
-    evaluate_parser.add_argument("--save_results", type=int, default=1)
-    evaluate_parser.add_argument("--f_img", type=os.path.abspath, help="Path to the fixed image.")
-    evaluate_parser.add_argument("--m_img", type=os.path.abspath, help="Path to the moving image.")
-    evaluate_parser.add_argument("--f_input", type=os.path.abspath, help="Path to the fixed input image.")
-    evaluate_parser.add_argument("--m_input", type=os.path.abspath, help="Path to the moving input image.")
-    evaluate_parser.add_argument("--f_mask", type=os.path.abspath, help="Path to the fixed mask.")
-    evaluate_parser.add_argument("--m_mask", type=os.path.abspath, help="Path to the moving mask.")
-    evaluate_parser.add_argument("--f_seg", type=os.path.abspath, help="Path to the fixed label map.")
-    evaluate_parser.add_argument("--m_seg", type=os.path.abspath, help="Path to the moving label map.")
-    evaluate_parser.add_argument("--prefix", type=os.path.abspath, help="Prefix of the saved results.")
+    evaluate_parser.add_argument("--model_complexity", action='store_true', help="Report computational complexity of the model")
+    evaluate_parser.add_argument("--save_results", type=int, default=1, help='''Specify level of evaluation results to save:
+        0: no results saved
+        1: save minimal outputs
+        2: save all inputs and outputs''')
+    evaluate_parser.add_argument("--f_img", type=os.path.abspath, help="Path to fixed image (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--m_img", type=os.path.abspath, help="Path to moving image (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--f_input", type=os.path.abspath, help="Path to fixed input image (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--m_input", type=os.path.abspath, help="Path to moving input image (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--f_mask", type=os.path.abspath, help="Path to fixed mask (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--m_mask", type=os.path.abspath, help="Path to moving mask (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--f_seg", type=os.path.abspath, help="Path to fixed label map (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--m_seg", type=os.path.abspath, help="Path to moving label map (if eval_data_configs not provided)")
+    evaluate_parser.add_argument("--prefix", type=os.path.abspath, help="Prefix for saved results (if eval_data_configs not provided)")
     add_arguments(evaluate_parser)
 
     args = parser.parse_args()
@@ -192,6 +196,7 @@ def main():
             net.load_state_dict(checkpoint['model_state_dict'])
             optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             start_epoch = checkpoint['epoch']
+            logger.info(f"Load checkpoint {params['checkpoint']}")
         except KeyError:
             '''load pretrained model in other format'''
             start_epoch = net.load_pretrained_model(checkpoint, optimizer)
@@ -216,7 +221,7 @@ def main():
 
         # main progress bar
         main_pbar = tqdm(total=params['num_epochs'], position=0)
-        main_pbar.set_description(f"[{socket.gethostname().split('.')[0]}-{params['gpu']}][{checkpoint_folder}]")
+        main_pbar.set_description(f"[Machine: {socket.gethostname().split('.')[0]}-{params['gpu']}][Total Epochs: {params['num_epochs']}]")
         eval_pbar = tqdm(total=len(evalDL), position=1)
         train_pbar = tqdm(total=len(trainDS) // params['batch_size'], position=2)
 
@@ -252,13 +257,14 @@ def main():
             main_pbar.update(1)
 
     elif params['func'] == 'evaluate':
-        logger.info('Analyze FLOPs and Number of Parameters')
-        # net.print_num_parameters()
-        net.print_flops()
+        if params['model_complexity']:
+            logger.info('Analyze FLOPs and Number of Parameters')
+            # net.print_num_parameters()
+            net.print_flops()
 
         logger.info('Evaluation started')
         pbar = tqdm(total=len(evalDS), position=0)
-        pbar.set_description(f"[Evaluation][{params['checkpoint']}]")
+        pbar.set_description(f"[Evaluation]")
         epoch_loss = evaluate(net, evalDL, params, pbar, eval_data_configs)
         pbar.close()
 
