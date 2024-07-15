@@ -1,5 +1,7 @@
 # Vector Field Attention
-This is the official Pytorch implementation of the deformable registration algorithm: "Vector Field Attention" we introduced in our paper: "Vector Field Attention for Deformable Image Registration."
+This is the official Pytorch implementation of our paper
+
+ <a href="">Yihao Liu, Junyu Chen, Lianrui Zuo, Aaron Carass, Jerry L. Prince, "Vector Field Attention for Deformable Image Registration."</a>
 
 ## Prerequisites
 VFA currently support 3D images in Nifti format. At least a moving image and a fixed image needs to be provided.
@@ -18,15 +20,15 @@ The easist way to run our algorithm is through Docker or Singularity containers.
 
 For Docker, you can download the Docker image using
 ```bash
-    docker pull registry.gitlab.com/iacl/vfa:vX.Y.Z
+    docker pull registry.gitlab.com/iacl/vfa:v0.0.6
 ```
 
 For singularity, you can use
 ```bash
-    singularity pull --docker-login docker://registry.gitlab.com/iacl/vfa:vX.Y.Z
+    singularity pull --docker-login docker://registry.gitlab.com/iacl/vfa:v0.0.6
 ```
 
-Singularity image can also be directly downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_vX.Y.Z.sif).
+Singularity image can also be directly downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6.sif).
 
 ### Installation from source code
 1. Clone this repository:
@@ -42,19 +44,17 @@ Singularity image can also be directly downloaded [**here**](https://iacl.ece.jh
     pip install .
 ```
 
-### Pretrained weights
-Pretrained weights of VFA can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_vX.Y.Z.pth).
-
 ## Usage
 If you use the Docker container, see:
 ```bash
-    docker run -it registry.gitlab.com/iacl/vfa:vX.Y.Z vfa-run --help
+    docker run -it registry.gitlab.com/iacl/vfa:v0.0.6 vfa-run --help
 ```
 
 If you the Singularity container, see:
 ```bash
-    singularity exec ./vfa_vX.Y.Z.sif vfa-run --help
+    singularity exec -e --nv ./vfa_v0.0.6.sif vfa-run --help
 ```
+For reading images and saving results on local machine, you need to first mount your disk.
 
 If you installed from source code, see:
 ```
@@ -122,21 +122,21 @@ If eval_data_configs not provided, you can also provide the following path in co
   --prefix PREFIX       Prefix for saved results
 ```
 
-The central component to the training and evaluation process is preparing the data_config.json files. It contains information to correctly load the data. Examples can be found in vfa/data_configs/.
+The central component to the training and evaluation process is preparing the data_config.json files. It contains information for loading the data. Examples can be found in vfa/data_configs/.
 
-Detailed information regarding each in a valid json file is provided below:
+Detailed information regarding each field in a valid json file is provided below:
 1. "loader": data loader to be used to load the data. It should be a class name defined in vfa/datasets/
-    We have implemented commonly used ones for most cases.
-    - "Pairwise": pairwise registration. In this case, you need to provide a "pairs" list in the json file that contains pairs of images to be registered.
+    We have implemented a few commonly used cases:
+    - "Pairwise": pairwise registration. In this case, you also need to provide a "pairs" list in the json file that contains pairs of images to be registered.
         This should be the most commonly used data loader.
-    - "Inter": inter subject registration. In this case, you need to provide a "f_subjects" list and a "m_subjects" list in the json file.
+    - "Inter": inter subject registration. In this case, you also need to provide a "f_subjects" list and a "m_subjects" list in the json file.
         A fixed image will be randomly chosen from the "f_subjects" set
         and a moving image will be randomly chosen from the "m_subjects" set. If "m_subjects" is not defined
         in the json file, both fixed and moving image will be randomly chosen from the "f_subjects" set.
         This data laoder can also be used for registration between subjects and atlas images
         by specifying the subject images in one set and atlas images in the other set.
         In generally, this data loader should only be used during training.
-    - "Intra": intra subject registration. In this case, you need to provide a "subjects" list.
+    - "Intra": intra subject registration. In this case, you also need to provide a "subjects" list.
         Each element inside the "subjects" list should also be a list that contains individual images of the same subject.
         First, a specific subject is randomly chosen. Then fixed and moving image will be randomly chosen from the selected subject.
         In generally, this data loader should only be used during training.
@@ -147,27 +147,27 @@ Detailed information regarding each in a valid json file is provided below:
     If your data has been preprocessed, both fixed and moving images has the same spatial
     dimensions that can be divided by 2^5, you only need
     ```bash
-    "transform":[                                                                                     
-        {"class_name":"Nifti2Array"},                                                                 
-        {"class_name":"DatatypeConversion"},                                                          
-        {"class_name":"ToTensor"}                  
+    "transform":[
+        {"class_name":"Nifti2Array"},
+        {"class_name":"DatatypeConversion"},
+        {"class_name":"ToTensor"}
     ],
     ```
     for more general applications, our default is
     ```bash
-    "transform" = [                                                                  
-        {"class_name":"Reorient", "orientation":'RAS'},                                       
-        {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},                              
-        {"class_name":"Nifti2Array"},                                                                                                                                                               
-        {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},                                                                                                                               
-        {"class_name":"DatatypeConversion"},                                                  
-        {"class_name":"ToTensor"},                                                            
+    "transform" = [
+        {"class_name":"Reorient", "orientation":'RAS'},
+        {"class_name":"Resample", "target_res":[1.0, 1.0, 1.0]},
+        {"class_name":"Nifti2Array"},
+        {"class_name":"DatatypeConversion"},
+        {"class_name":"AdjustShape", "target_shape":[192, 224, 192]},
+        {"class_name":"ToTensor"},
     ]
     ``` 
+    For training, our default also include a intensity normalization step to avoid large intensity values causing NaN error.
 4. "labels": labels used for computing Dice loss (optional). You can include a subset of all available labels
-    in the label map input to encourage the registration to focus on certain structure.
-5. "m_subjects" / "f_subjects" / "subjects" / "pairs": depends on the data loader, you need to specifies these lists
-    Each image is a dictionary that contains the following information:
+    in the label map to encourage the registration focusing on certain structure.
+5. "m_subjects" / "f_subjects" / "subjects" / "pairs": depends on the data loader, you need to specifies these lists. Each image is a dictionary that contains the following information:
     ```bash
     {
         "id":38,
@@ -181,34 +181,40 @@ Detailed information regarding each in a valid json file is provided below:
 
 We recommend using the examples provided in vfa/data_configs/ and modifies those examples to avoid error.
 
+Hyper-parameters and loss functions are specified using params.json file. We provided two examples in vfa/params/vfa/
+- vfa/params/vfa/vfa_ncc.json uses normalized cross correlation loss. It should be used for intra-modality registration.
+- vfa/params/vfa/vfa_mi.json uses mutual information loss. It can be used for inter-modality registration.
+
 ### Training outputs
-Checkpoint files will be saved to output_dir/checkpoints/identifier/
-Tensorboard files will be saved to output_dir/runs/
+- Checkpoint files will be saved to output_dir/checkpoints/identifier/
+- Tensorboard files will be saved to output_dir/runs/
 
 output_dir and identifier are specified as command line argument during training
 
 ### Evaluation outputs
 Registration results are saved based on prefix setting in data_config.json
 When save_results is set to 1, VFA saves:
-1. The warped image: "prefix_m_img.nii.gz"
-2. The intersection of the warped and fixed mask: "prefix_mask.nii.gz"
-3. The transformation grid: "prefix_grid.nii.gz"
-4. (When the moving segmentation is provided) The warped label map: "prefix_w_seg.nii.gz"
+- The warped image: "prefix_m_img.nii.gz"
+- The intersection of the warped and fixed mask: "prefix_mask.nii.gz"
+- The transformation grid: "prefix_grid.nii.gz"
+- (When the moving segmentation is provided) The warped label map: "prefix_w_seg.nii.gz"
 
 When save_results is set to 2, VFA saves additional images:
-5. The fixed image: "prefix_f_img.nii.gz"
-6. The moving image: "prefix_m_img.nii.gz"
-7. The warped mask: "prefix_w_mask.nii.gz"
-8. The fixed label map: "prefix_f_seg.nii.gz"
-9. The moving label map: "prefix_m_seg.nii.gz"
-10. The grid line representation of the transformation: "prefix_grid_lines.nii.gz"
-11. Displacement magnitude image: "prefix_disp_magnitude.nii.gz"
-We export those additional images to be useful for debugging purpose, however, they will slow down the processing
+- The fixed image: "prefix_f_img.nii.gz"
+- The moving image: "prefix_m_img.nii.gz"
+- The warped mask: "prefix_w_mask.nii.gz"
+- The fixed label map: "prefix_f_seg.nii.gz"
+- The moving label map: "prefix_m_seg.nii.gz"
+- The grid line representation of the transformation: "prefix_grid_lines.nii.gz"
+- Displacement magnitude image: "prefix_disp_magnitude.nii.gz"
+
+### Pretrained weights
+- Pretrain VFA on LUMIR dataset can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6_lumir.pth).
 
 ### Citation
 If you use this code, please cite our papers.
 
-and our previous conference paper:
+Our previous conference paper:
 ```
 @inproceedings{liu2022coordinate,
   title={Coordinate translator for learning deformable medical image registration},
