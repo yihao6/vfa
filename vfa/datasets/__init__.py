@@ -415,7 +415,7 @@ class BaseDataset(Dataset, ABC):
             Only applied to the images but not the inputs because inputs will be normalized by
             InstanceNorm within the network
         '''
-        def __init__(self, min_percentile=0.01, max_percentile=0.99):
+        def __init__(self, min_percentile=1, max_percentile=99):
             self.max_percentile = max_percentile
             self.min_percentile = min_percentile
 
