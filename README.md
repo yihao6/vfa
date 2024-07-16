@@ -1,15 +1,15 @@
 # Vector Field Attention
 This is the official Pytorch implementation of our paper
 
- <a href="">Yihao Liu, Junyu Chen, Lianrui Zuo, Aaron Carass, Jerry L. Prince, "Vector Field Attention for Deformable Image Registration."</a>
+ <a href="https://arxiv.org/abs/2407.10209">Yihao Liu, Junyu Chen, Lianrui Zuo, Aaron Carass, Jerry L. Prince, "Vector Field Attention for Deformable Image Registration."</a>
 
 ## Prerequisites
 VFA currently support 3D images in Nifti format. At least a moving image and a fixed image needs to be provided.
 Additionally, VFA allows the following optional inputs:
 - Fixed/moving image mask
 - Fixed/moving image label map
-Masks can be used to remove the background in the input images or remove the background region in loss during training.
-Label maps enables Dice loss during training.
+
+Masks can be used to remove the background in the input images or remove the background region in loss during training. Label maps enables Dice loss during training.
 
 Inhomogeneity correction recommended for structural MR images.
 We used [Tustison, Nicholas J., et al. "N4ITK: improved N3 bias correction."](https://ieeexplore.ieee.org/document/5445030)
@@ -100,6 +100,7 @@ optional arguments:
                             0: no results saved
                             1: save minimal outputs
                             2: save all inputs and outputs
+                        Default: 1
   --gpu GPU             GPU ID. Default: 0
   --checkpoint CHECKPOINT
                         Path to pretrained models. During training, continue from this checkpoint. During evaluation, evaluate this checkpoint.
@@ -107,6 +108,7 @@ optional arguments:
   --eval_data_configs EVAL_DATA_CONFIGS
                         Path to data_configs.json for evaluation data information
   --cudnn               Enable CUDNN for potential speedup
+  --model_complexity    Report the computational complexity of the selected model
 ```
 
 If eval_data_configs not provided, you can also provide the following path in command line
@@ -209,12 +211,20 @@ When save_results is set to 2, VFA saves additional images:
 - Displacement magnitude image: "prefix_disp_magnitude.nii.gz"
 
 ### Pretrained weights
-- Pretrain VFA on LUMIR dataset can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6_lumir.pth).
+- Pretrained VFA on <a href="https://github.com/JHU-MedImage-Reg/LUMIR_L2R">LUMIR dataset</a> can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6_lumir.pth).
 
 ### Citation
 If you use this code, please cite our papers.
+```
+@article{liu2024vector,
+  title={Vector Field Attention for Deformable Image Registration},
+  author={Liu, Yihao and Chen, Junyu and Zuo, Lianrui and Carass, Aaron and Prince, Jerry L},
+  journal={arXiv preprint arXiv:2407.10209},
+  year={2024}
+}
+```
 
-Our previous conference paper:
+and our previous conference version:
 ```
 @inproceedings{liu2022coordinate,
   title={Coordinate translator for learning deformable medical image registration},
