@@ -211,7 +211,7 @@ When save_results is set to 2, VFA saves additional images:
 - Displacement magnitude image: "prefix_disp_magnitude.nii.gz"
 
 ### Pretrained weights
-- Pretrained VFA on <a href="https://github.com/JHU-MedImage-Reg/LUMIR_L2R">LUMIR dataset</a> can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6_lumir.pth).
+- Pretrained VFA on <a href="https://github.com/JHU-MedImage-Reg/LUMIR_L2R">LUMIR dataset</a> can be downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6_lumir.zip).
 
 ### Citation
 If you use this code, please cite our papers.
