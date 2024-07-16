@@ -97,6 +97,7 @@ def add_arguments(subparser):
     subparser.add_argument("--params", type=os.path.abspath, help="Path to params.json for hyper-parameters. If a checkpoint is provided, defaults to params.json in the checkpoint folder.")
     subparser.add_argument("--eval_data_configs", type=os.path.abspath, help="Path to data_configs.json for evaluation data information", default='')
     subparser.add_argument("--cudnn", action='store_true', default=False, help="Enable CUDNN for potential speedup")
+    subparser.add_argument("--output_dir", type=os.path.abspath, help="Output directory (default: ./vfa)", default='./vfa')
 
 def main():
     logger.info('Program started')
@@ -106,7 +107,6 @@ def main():
 
     train_parser = subparsers.add_parser('train')
     train_parser.set_defaults(func='train')
-    train_parser.add_argument("--output_dir", type=os.path.abspath, help="Output directory (default: ./vfa)", default='./vfa')
     train_parser.add_argument("--identifier", help="A string that identify the current run (required)", required=True)
     train_parser.add_argument("--train_data_configs", type=os.path.abspath, help="Path to data_configs.json for training data information (required)", required=True)
     train_parser.set_defaults(save_results=0)
