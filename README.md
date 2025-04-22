@@ -18,17 +18,16 @@ We used [Tustison, Nicholas J., et al. "N4ITK: improved N3 bias correction."](ht
 ### Docker / Singularity container
 The easist way to run our algorithm is through Docker or Singularity containers.
 
-For Docker, you can download the Docker image using
+Go to: to [Docker Hub](https://hub.docker.com/r/yihao6/vfa/tags) to check the availabe tags.
+For Docker, you can download the Docker image (version v0.0.7) using
 ```bash
-    docker pull registry.gitlab.com/iacl/vfa:v0.0.6
+    docker pull yihao6/vfa:v0.0.7
 ```
 
 For singularity, you can use
 ```bash
-    singularity pull --docker-login docker://registry.gitlab.com/iacl/vfa:v0.0.6
+    singularity pull vfa_v0.0.7.sif docker://yihao6/vfa:v0.0.7
 ```
-
-Singularity image can also be directly downloaded [**here**](https://iacl.ece.jhu.edu/~yihao/vfa/vfa_v0.0.6.sif).
 
 ### Installation from source code
 1. Clone this repository:
@@ -47,12 +46,12 @@ Singularity image can also be directly downloaded [**here**](https://iacl.ece.jh
 ## Usage
 If you use the Docker container, see:
 ```bash
-    docker run -it registry.gitlab.com/iacl/vfa:v0.0.6 vfa-run --help
+    sudo docker run -it yihao6/vfa:v0.0.7 vfa-run --help
 ```
 
 If you the Singularity container, see:
 ```bash
-    singularity exec -e --nv ./vfa_v0.0.6.sif vfa-run --help
+    singularity exec -e --nv ./vfa_v0.0.7.sif vfa-run --help
 ```
 For reading images and saving results on local machine, you need to first mount your disk.
 

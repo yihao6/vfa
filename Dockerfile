@@ -8,5 +8,4 @@ COPY . /tmp/vfa
 
 RUN pip install /tmp/vfa && rm -rf /tmp/vfa
 
-ENTRYPOINT ["sh", "-c"]
-CMD ["vfa-run"]
+CMD ["/bin/bash"]
